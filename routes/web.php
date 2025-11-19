@@ -24,6 +24,13 @@ Route::get('/', function () {
 Route::middleware(['guest'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.store');
+    Route::get('/register', function () {
+        return view('auth.register');
+    })->name('register');
+    Route::post('/register', function () {
+        // Registration logic here (not implemented)
+        return redirect()->route('login')->with('success', 'Registrasi berhasil. Silakan login.');
+    })->name('register.store');
 });
 
 // Logout route
