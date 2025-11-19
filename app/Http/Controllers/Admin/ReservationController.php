@@ -9,11 +9,46 @@ use Illuminate\Http\Request;
 
 class ReservationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $reservations = Reservation::with('destination')
-            ->paginate(10);
-        return view('admin.reservations.index', compact('reservations'));
+        $query = Reservation::with('destination');
+
+        // Search by customer name or email
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where('customer_name', 'LIKE', "%{$search}%")
+                  ->orWhere('customer_email', 'LIKE', "%{$search}%")
+                  ->orWhere('customer_phone', 'LIKE', "%{$search}%");
+        }
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        // Filter by destination
+        if ($request->filled('destination_id')) {
+            $query->where('destination_id', $request->input('destination_id'));
+        }
+
+        // Filter by date range
+        if ($request->filled('date_from')) {
+            $query->whereDate('reservation_date', '>=', $request->input('date_from'));
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('reservation_date', '<=', $request->input('date_to'));
+        }
+
+        // Sort by
+        $sortBy = $request->input('sort_by', 'reservation_date');
+        $sortOrder = $request->input('sort_order', 'desc');
+        $query->orderBy($sortBy, $sortOrder);
+
+        $reservations = $query->paginate(10)->appends($request->query());
+        $destinations = Destination::all();
+        
+        return view('admin.reservations.index', compact('reservations', 'destinations'));
     }
 
     public function create()

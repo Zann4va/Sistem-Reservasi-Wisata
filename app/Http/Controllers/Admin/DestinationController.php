@@ -8,9 +8,39 @@ use Illuminate\Http\Request;
 
 class DestinationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $destinations = Destination::paginate(10);
+        $query = Destination::query();
+
+        // Search by name or location
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('location', 'LIKE', "%{$search}%");
+        }
+
+        // Filter by price range
+        if ($request->filled('price_min')) {
+            $query->where('price', '>=', $request->input('price_min'));
+        }
+
+        if ($request->filled('price_max')) {
+            $query->where('price', '<=', $request->input('price_max'));
+        }
+
+        // Filter by rating
+        if ($request->filled('rating')) {
+            $rating = $request->input('rating');
+            $query->where('rating', '>=', $rating);
+        }
+
+        // Sort by
+        $sortBy = $request->input('sort_by', 'name');
+        $sortOrder = $request->input('sort_order', 'asc');
+        $query->orderBy($sortBy, $sortOrder);
+
+        $destinations = $query->paginate(10)->appends($request->query());
+        
         return view('admin.destinations.index', compact('destinations'));
     }
 

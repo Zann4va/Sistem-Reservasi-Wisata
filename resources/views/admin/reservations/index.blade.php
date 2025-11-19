@@ -4,10 +4,86 @@
 @section('page-title', 'Daftar Reservasi')
 
 @section('content')
-<div class="mb-3">
-    <a href="{{ route('admin.reservations.create') }}" class="btn btn-primary">
-        <i class="bi bi-plus-circle"></i> Tambah Reservasi
-    </a>
+<div class="mb-4">
+    <div class="row align-items-end gap-3">
+        <div class="col-md-2">
+            <a href="{{ route('admin.reservations.create') }}" class="btn btn-primary w-100">
+                <i class="bi bi-plus-circle"></i> Tambah Reservasi
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Search & Filter Section -->
+<div class="table-container mb-4">
+    <form method="GET" action="{{ route('admin.reservations.index') }}" class="row g-3">
+        <div class="col-md-3">
+            <label class="form-label"><i class="bi bi-search"></i> Cari Nama/Email/HP</label>
+            <input type="text" name="search" class="form-control" placeholder="Nama atau email..." value="{{ request('search') }}">
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label"><i class="bi bi-calendar"></i> Dari Tanggal</label>
+            <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}">
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label"><i class="bi bi-calendar"></i> Sampai Tanggal</label>
+            <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}">
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label"><i class="bi bi-tag"></i> Status</label>
+            <select name="status" class="form-select">
+                <option value="">-- Semua Status --</option>
+                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>⏳ Pending</option>
+                <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>✓ Terkonfirmasi</option>
+                <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>✗ Dibatalkan</option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label"><i class="bi bi-map"></i> Destinasi</label>
+            <select name="destination_id" class="form-select">
+                <option value="">-- Semua Destinasi --</option>
+                @foreach($destinations as $dest)
+                    <option value="{{ $dest->id }}" {{ request('destination_id') == $dest->id ? 'selected' : '' }}>
+                        {{ $dest->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label"><i class="bi bi-arrow-down-up"></i> Urutkan</label>
+            <select name="sort_by" class="form-select">
+                <option value="reservation_date" {{ request('sort_by') == 'reservation_date' ? 'selected' : '' }}>Tanggal Reservasi</option>
+                <option value="customer_name" {{ request('sort_by') == 'customer_name' ? 'selected' : '' }}>Nama Customer</option>
+                <option value="total_price" {{ request('sort_by') == 'total_price' ? 'selected' : '' }}>Total Harga</option>
+                <option value="created_at" {{ request('sort_by') == 'created_at' ? 'selected' : '' }}>Dibuat</option>
+            </select>
+        </div>
+
+        <div class="col-md-1">
+            <label class="form-label">&nbsp;</label>
+            <select name="sort_order" class="form-select">
+                <option value="desc" {{ request('sort_order') == 'desc' ? 'selected' : '' }}>↓ Terbaru</option>
+                <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>↑ Terlama</option>
+            </select>
+        </div>
+
+        <div class="col-12">
+            <button type="submit" class="btn btn-success me-2">
+                <i class="bi bi-search"></i> Filter & Cari
+            </button>
+            <a href="{{ route('admin.reservations.index') }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-clockwise"></i> Reset
+            </a>
+            <span class="text-muted ms-3">
+                Menampilkan <strong>{{ $reservations->count() }}</strong> dari <strong>{{ $reservations->total() }}</strong> reservasi
+            </span>
+        </div>
+    </form>
 </div>
 
 <div class="table-container">
