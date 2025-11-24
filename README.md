@@ -255,8 +255,13 @@ http://localhost:8000
 
 ### 👨‍💼 Admin Account
 ```
-Email    : admin@wisata.com
-Password : password
+Email    : dimas@wisata.com
+Password : admin123
+
+Email    : iwan@wisata.com
+Password : admin123
+
+
 ```
 
 **Access:** Full CRUD untuk destinasi, reservasi, dan dashboard
