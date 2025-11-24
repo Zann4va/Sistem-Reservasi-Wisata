@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Sistem Reservasi Wisata</title>
+    <link 
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
+        rel="stylesheet" 
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" 
+        crossorigin="anonymous">
+    <link 
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" 
+        rel="stylesheet">
+
     <style>
         * {
             margin: 0;
@@ -121,7 +130,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>Login</h1>
+        <h1>
+            Login
+            <i class="bi-send white"></i>
+        </h1>
         
         @if ($errors->any())
             <div style="color: #e74c3c; background-color: #fadbd8; padding: 12px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #f5b7b1;">
