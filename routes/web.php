@@ -57,3 +57,8 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
+
+// Ini persiapan untuk Route User saja.... andai nanti dibutuhkan
+Route::middleware(['auth'])->group(function (){
+
+});
