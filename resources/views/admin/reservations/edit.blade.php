@@ -90,8 +90,14 @@
                         class="form-control @error('reservation_date') is-invalid @enderror" 
                         id="reservation_date" 
                         name="reservation_date" 
-                        value="{{ old('reservation_date', $reservation->reservation_date->format('Y-m-d')) }}" 
+                        value="{{ old('reservation_date', $reservation->reservation_date->format('Y-m-d')) }}"
+                        min="{{ date('Y-m-d', strtotime('+1 day')) }}"
+                        max="{{ date('Y-m-d', strtotime('+1 year')) }}"
+                        title="Tanggal harus minimal 1 hari ke depan dan maksimal 1 tahun"
                         required>
+                    <small class="form-text text-muted">
+                        Min. 1 hari ke depan, max. 1 tahun ke depan
+                    </small>
                     @error('reservation_date')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -112,10 +118,15 @@
                         class="form-control @error('quantity') is-invalid @enderror" 
                         id="quantity" 
                         name="quantity" 
-                        value="{{ old('quantity', $reservation->quantity) }}" 
-                        min="1" 
+                        value="{{ old('quantity', $reservation->quantity) }}"
+                        min="1"
+                        max="100"
+                        title="Jumlah orang harus antara 1-100 orang"
                         required 
                         onchange="updatePrice()">
+                    <small class="form-text text-muted">
+                        Min. 1 orang, max. 100 orang
+                    </small>
                     @error('quantity')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -133,10 +144,15 @@
                         class="form-control @error('total_price') is-invalid @enderror" 
                         id="total_price" 
                         name="total_price" 
-                        value="{{ old('total_price', $reservation->total_price) }}" 
-                        step="0.01" 
+                        value="{{ old('total_price', $reservation->total_price) }}"
+                        min="50000"
+                        step="1"
+                        title="Total harga akan otomatis dihitung"
                         required 
                         readonly>
+                    <small class="form-text text-muted">
+                        💡 Dihitung otomatis: harga destinasi × jumlah orang
+                    </small>
                     @error('total_price')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -183,12 +199,14 @@
         <div class="form-group mb-3">
             <label for="notes">
                 Catatan
+                <small class="text-muted">(max 1000 karakter)</small>
             </label>
             <textarea 
                 class="form-control @error('notes') is-invalid @enderror" 
                 id="notes" 
                 name="notes" 
                 rows="3"
+                maxlength="1000"
                 placeholder="Tambahkan catatan jika diperlukan...">{{ old('notes', $reservation->notes) }}</textarea>
             @error('notes')
                 <div class="invalid-feedback">{{ $message }}</div>

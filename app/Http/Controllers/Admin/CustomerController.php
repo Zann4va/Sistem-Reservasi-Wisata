@@ -76,15 +76,27 @@ class CustomerController extends Controller
     {
         // ===== VALIDATION =====
         $validated = $request->validate([
-            'name' => 'required|string|max:100',                   // Customer name
-            'email' => 'required|email|unique:customers,email',    // Email (unique)
-            'phone' => 'required|string|max:20',                   // Phone number
-            'address' => 'nullable|string',                        // Address (optional)
-            'city' => 'nullable|string|max:100',                   // City (optional)
-            'province' => 'nullable|string|max:100',               // Province (optional)
-            'postal_code' => 'nullable|string|max:10',             // Postal code (optional)
-            'notes' => 'nullable|string',                          // Notes (optional)
+            'name' => 'required|string|min:3|max:100|regex:/^[a-zA-Z\s]+$/',                   // Name: only letters & spaces, min 3
+            'email' => 'required|email|unique:customers,email|lowercase',                      // Email: unique, must be lowercase
+            'phone' => 'required|regex:/^[0-9]{10,15}$/|unique:customers,phone',                // Phone: 10-15 digits only, unique
+            'address' => 'nullable|string|max:500',                                            // Address: max 500 chars
+            'city' => 'nullable|string|max:100|regex:/^[a-zA-Z\s]+$/',                       // City: letters & spaces only
+            'province' => 'nullable|string|max:100|regex:/^[a-zA-Z\s]+$/',                   // Province: letters & spaces only
+            'postal_code' => 'nullable|regex:/^[0-9]{4,6}$/',                                  // Postal code: 4-6 digits
+            'notes' => 'nullable|string|max:1000',                                             // Notes: max 1000 chars
+        ], [
+            'name.regex' => 'Nama hanya boleh mengandung huruf dan spasi',
+            'name.min' => 'Nama minimal 3 karakter',
+            'email.lowercase' => 'Email harus menggunakan huruf kecil',
+            'phone.regex' => 'Nomor telepon harus terdiri dari 10-15 angka',
+            'phone.unique' => 'Nomor telepon sudah terdaftar',
+            'city.regex' => 'Kota hanya boleh mengandung huruf dan spasi',
+            'province.regex' => 'Provinsi hanya boleh mengandung huruf dan spasi',
+            'postal_code.regex' => 'Kode pos harus terdiri dari 4-6 angka',
         ]);
+        
+        // ===== LOWERCASE EMAIL =====
+        $validated['email'] = strtolower($validated['email']);
 
         // ===== CREATE RECORD =====
         Customer::create($validated);
@@ -130,15 +142,27 @@ class CustomerController extends Controller
     {
         // ===== VALIDATION =====
         $validated = $request->validate([
-            'name' => 'required|string|max:100',                                   // Customer name
-            'email' => 'required|email|unique:customers,email,' . $customer->id,   // Email (unique except current)
-            'phone' => 'required|string|max:20',                                   // Phone number
-            'address' => 'nullable|string',                                        // Address (optional)
-            'city' => 'nullable|string|max:100',                                   // City (optional)
-            'province' => 'nullable|string|max:100',                               // Province (optional)
-            'postal_code' => 'nullable|string|max:10',                             // Postal code (optional)
-            'notes' => 'nullable|string',                                          // Notes (optional)
+            'name' => 'required|string|min:3|max:100|regex:/^[a-zA-Z\s]+$/',                              // Name: letters & spaces, min 3
+            'email' => 'required|email|unique:customers,email,' . $customer->id . '|lowercase',          // Email: unique, lowercase
+            'phone' => 'required|regex:/^[0-9]{10,15}$/|unique:customers,phone,' . $customer->id,        // Phone: unique, 10-15 digits
+            'address' => 'nullable|string|max:500',                                                        // Address: max 500 chars
+            'city' => 'nullable|string|max:100|regex:/^[a-zA-Z\s]+$/',                                   // City: letters & spaces
+            'province' => 'nullable|string|max:100|regex:/^[a-zA-Z\s]+$/',                               // Province: letters & spaces
+            'postal_code' => 'nullable|regex:/^[0-9]{4,6}$/',                                              // Postal code: 4-6 digits
+            'notes' => 'nullable|string|max:1000',                                                         // Notes: max 1000 chars
+        ], [
+            'name.regex' => 'Nama hanya boleh mengandung huruf dan spasi',
+            'name.min' => 'Nama minimal 3 karakter',
+            'email.lowercase' => 'Email harus menggunakan huruf kecil',
+            'phone.regex' => 'Nomor telepon harus terdiri dari 10-15 angka',
+            'phone.unique' => 'Nomor telepon sudah terdaftar',
+            'city.regex' => 'Kota hanya boleh mengandung huruf dan spasi',
+            'province.regex' => 'Provinsi hanya boleh mengandung huruf dan spasi',
+            'postal_code.regex' => 'Kode pos harus terdiri dari 4-6 angka',
         ]);
+        
+        // ===== LOWERCASE EMAIL =====
+        $validated['email'] = strtolower($validated['email']);
 
         // ===== UPDATE RECORD =====
         $customer->update($validated);

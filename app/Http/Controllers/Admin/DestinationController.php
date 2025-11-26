@@ -88,12 +88,22 @@ class DestinationController extends Controller
     {
         // ===== VALIDATION =====
         $validated = $request->validate([
-            'name' => 'required|string|max:100',                   // Destination name
-            'description' => 'required|string',                    // Long description
-            'location' => 'required|string|max:100',               // Geographic location
-            'price' => 'required|numeric|min:0',                   // Price in Rupiah
-            'image_url' => 'nullable|url',                         // Image URL (optional)
-            'rating' => 'nullable|numeric|min:0|max:5',           // Star rating (0-5)
+            'name' => 'required|string|min:5|max:100|unique:destinations,name',    // Name: min 5, unique
+            'description' => 'required|string|min:10|max:2000',                    // Description: min 10 chars
+            'location' => 'required|string|min:5|max:100',                         // Location: min 5 chars
+            'price' => 'required|numeric|min:10000|max:999999999',                 // Price: Rp 10K - 999M
+            'image_url' => 'nullable|url|max:500',                                 // Image URL: valid URL
+            'rating' => 'nullable|numeric|min:0|max:5',                            // Rating: 0-5 stars
+            'total_visitors' => 'nullable|numeric|min:0|max:9999999',              // Visitors: realistic number
+        ], [
+            'name.min' => 'Nama destinasi minimal 5 karakter',
+            'name.unique' => 'Nama destinasi sudah ada',
+            'description.min' => 'Deskripsi minimal 10 karakter',
+            'location.min' => 'Lokasi minimal 5 karakter',
+            'price.min' => 'Harga minimal Rp 10.000',
+            'price.max' => 'Harga maksimal Rp 999.999.999',
+            'rating.max' => 'Rating maksimal 5 bintang',
+            'total_visitors.max' => 'Jumlah pengunjung tidak realistis',
         ]);
 
         // ===== CREATE RECORD =====
@@ -137,12 +147,22 @@ class DestinationController extends Controller
     {
         // ===== VALIDATION =====
         $validated = $request->validate([
-            'name' => 'required|string|max:100',                   // Destination name
-            'description' => 'required|string',                    // Long description
-            'location' => 'required|string|max:100',               // Geographic location
-            'price' => 'required|numeric|min:0',                   // Price in Rupiah
-            'image_url' => 'nullable|url',                         // Image URL (optional)
-            'rating' => 'nullable|numeric|min:0|max:5',           // Star rating (0-5)
+            'name' => 'required|string|min:5|max:100|unique:destinations,name,' . $destination->id,       // Name: unique except current
+            'description' => 'required|string|min:10|max:2000',                                            // Description: min 10 chars
+            'location' => 'required|string|min:5|max:100',                                                 // Location: min 5 chars
+            'price' => 'required|numeric|min:10000|max:999999999',                                         // Price: Rp 10K - 999M
+            'image_url' => 'nullable|url|max:500',                                                         // Image URL: valid URL
+            'rating' => 'nullable|numeric|min:0|max:5',                                                    // Rating: 0-5 stars
+            'total_visitors' => 'nullable|numeric|min:0|max:9999999',                                      // Visitors: realistic
+        ], [
+            'name.min' => 'Nama destinasi minimal 5 karakter',
+            'name.unique' => 'Nama destinasi sudah ada',
+            'description.min' => 'Deskripsi minimal 10 karakter',
+            'location.min' => 'Lokasi minimal 5 karakter',
+            'price.min' => 'Harga minimal Rp 10.000',
+            'price.max' => 'Harga maksimal Rp 999.999.999',
+            'rating.max' => 'Rating maksimal 5 bintang',
+            'total_visitors.max' => 'Jumlah pengunjung tidak realistis',
         ]);
 
         // ===== UPDATE RECORD =====

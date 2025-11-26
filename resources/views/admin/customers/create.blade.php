@@ -23,6 +23,7 @@
                         <label for="name" class="form-label">
                             <i class="bi bi-person"></i> Nama
                             <span class="text-danger">*</span>
+                            <small class="text-muted">(hanya huruf, min 3 karakter)</small>
                         </label>
                         <input 
                             type="text" 
@@ -31,6 +32,8 @@
                             name="name" 
                             placeholder="Masukkan nama lengkap"
                             value="{{ old('name') }}"
+                            pattern="^[a-zA-Z\s]{3,100}$"
+                            title="Nama hanya boleh mengandung huruf dan spasi, minimal 3 karakter"
                             required>
                         @error('name')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -42,15 +45,20 @@
                         <label for="email" class="form-label">
                             <i class="bi bi-envelope"></i> Email
                             <span class="text-danger">*</span>
+                            <small class="text-muted">(harus lowercase)</small>
                         </label>
                         <input 
                             type="email" 
                             class="form-control @error('email') is-invalid @enderror" 
                             id="email" 
                             name="email" 
-                            placeholder="Masukkan email"
+                            placeholder="contoh@email.com"
                             value="{{ old('email') }}"
+                            title="Email harus format yang benar dan menggunakan huruf kecil"
                             required>
+                        <small class="form-text text-muted">
+                            💡 Email akan otomatis diubah menjadi huruf kecil
+                        </small>
                         @error('email')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
@@ -61,14 +69,17 @@
                         <label for="phone" class="form-label">
                             <i class="bi bi-telephone"></i> Telepon
                             <span class="text-danger">*</span>
+                            <small class="text-muted">(10-15 angka)</small>
                         </label>
                         <input 
-                            type="text" 
+                            type="tel" 
                             class="form-control @error('phone') is-invalid @enderror" 
                             id="phone" 
                             name="phone" 
                             placeholder="Contoh: 081234567890"
                             value="{{ old('phone') }}"
+                            pattern="^[0-9]{10,15}$"
+                            title="Nomor telepon harus terdiri dari 10-15 angka saja"
                             required>
                         @error('phone')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -97,6 +108,7 @@
                     <div class="mb-3">
                         <label for="city" class="form-label">
                             <i class="bi bi-geo-alt"></i> Kota
+                            <small class="text-muted">(hanya huruf)</small>
                         </label>
                         <input 
                             type="text" 
@@ -104,7 +116,9 @@
                             id="city" 
                             name="city" 
                             placeholder="Masukkan kota"
-                            value="{{ old('city') }}">
+                            value="{{ old('city') }}"
+                            pattern="^[a-zA-Z\s]*$"
+                            title="Kota hanya boleh mengandung huruf dan spasi">
                         @error('city')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
@@ -114,6 +128,7 @@
                     <div class="mb-3">
                         <label for="province" class="form-label">
                             <i class="bi bi-map"></i> Provinsi
+                            <small class="text-muted">(hanya huruf)</small>
                         </label>
                         <input 
                             type="text" 
@@ -121,7 +136,9 @@
                             id="province" 
                             name="province" 
                             placeholder="Masukkan provinsi"
-                            value="{{ old('province') }}">
+                            value="{{ old('province') }}"
+                            pattern="^[a-zA-Z\s]*$"
+                            title="Provinsi hanya boleh mengandung huruf dan spasi">
                         @error('province')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
@@ -131,6 +148,7 @@
                     <div class="mb-3">
                         <label for="postal_code" class="form-label">
                             <i class="bi bi-mailbox"></i> Kode Pos
+                            <small class="text-muted">(4-6 angka)</small>
                         </label>
                         <input 
                             type="text" 
@@ -138,7 +156,9 @@
                             id="postal_code" 
                             name="postal_code" 
                             placeholder="Contoh: 12345"
-                            value="{{ old('postal_code') }}">
+                            value="{{ old('postal_code') }}"
+                            pattern="^[0-9]{4,6}$"
+                            title="Kode pos harus terdiri dari 4-6 angka saja">
                         @error('postal_code')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
