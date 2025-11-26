@@ -19,15 +19,19 @@
                     </h5>
                     <div class="mb-3">
                         <label class="text-muted">Nama</label>
-                        <p class="fw-bold">{{ $reservation->customer_name }}</p>
+                        <p class="fw-bold">
+                            <a href="{{ route('admin.customers.show', $reservation->customer) }}" class="text-decoration-none">
+                                {{ $reservation->customer_name }}
+                            </a>
+                        </p>
                     </div>
                     <div class="mb-3">
                         <label class="text-muted">Email</label>
-                        <p>{{ $reservation->customer_email }}</p>
+                        <p>{{ $reservation->customer->email }}</p>
                     </div>
                     <div class="mb-3">
                         <label class="text-muted">Nomor Telepon</label>
-                        <p>{{ $reservation->customer_phone }}</p>
+                        <p>{{ $reservation->customer->phone }}</p>
                     </div>
                 </div>
 
@@ -76,7 +80,7 @@
                     <div class="mb-3">
                         <label class="text-muted">Status</label>
                         <p>
-                            <x-status-badge :status="$reservation->status" />
+                            <x-status_badge :status="$reservation->status" />
                         </p>
                     </div>
                     <div class="mb-3">
@@ -100,7 +104,7 @@
 
         <!-- ===== RIGHT COLUMN: QUICK ACTIONS ===== -->
         <div class="col-md-4">
-            <x-reservation-quick-actions :reservation="$reservation" />
+            <x-reservation_quick_actions :reservation="$reservation" />
         </div>
     </div>
 
@@ -117,6 +121,53 @@
         class="btn btn-secondary">
         <i class="bi bi-arrow-left"></i> Kembali
     </a>
+</div>
+
+<!-- ===== CONFIRM RESERVATION MODAL ===== -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h5 class="modal-title">Konfirmasi Reservasi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Modal Body -->
+            <form action="{{ route('admin.reservations.changeStatus', $reservation) }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <input type="hidden" name="status" value="confirmed">
+                    <p>Apakah Anda yakin ingin mengkonfirmasi reservasi ini?</p>
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <strong>Catatan (Opsional)</strong>
+                        </label>
+                        <textarea 
+                            name="reason" 
+                            class="form-control" 
+                            rows="3" 
+                            placeholder="Tambahkan catatan jika diperlukan..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                    <button 
+                        type="button" 
+                        class="btn btn-secondary" 
+                        data-bs-dismiss="modal">
+                        Batal
+                    </button>
+                    <button 
+                        type="submit" 
+                        class="btn btn-success">
+                        Konfirmasi Reservasi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <!-- ===== CANCEL RESERVATION MODAL ===== -->

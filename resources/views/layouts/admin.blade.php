@@ -366,6 +366,11 @@
                 </a>
             </li>
             <li>
+                <a href="{{ route('admin.customers.index') }}" class="@if(Route::currentRouteName() === 'admin.customers.index' || Route::currentRouteName() === 'admin.customers.create' || Route::currentRouteName() === 'admin.customers.edit') active @endif">
+                    <i class="bi bi-people"></i> Customer
+                </a>
+            </li>
+            <li>
                 <a href="{{ route('admin.reservations.index') }}" class="@if(Route::currentRouteName() === 'admin.reservations.index' || Route::currentRouteName() === 'admin.reservations.create' || Route::currentRouteName() === 'admin.reservations.edit') active @endif">
                     <i class="bi bi-calendar-check"></i> Reservasi
                 </a>

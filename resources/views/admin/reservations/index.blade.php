@@ -173,7 +173,7 @@
 
                             <!-- Customer Info -->
                             <td>{{ $res->customer_name }}</td>
-                            <td>{{ $res->customer_email }}</td>
+                            <td>{{ $res->customer->email }}</td>
                             <td>{{ $res->destination->name }}</td>
 
                             <!-- Reservation Details -->

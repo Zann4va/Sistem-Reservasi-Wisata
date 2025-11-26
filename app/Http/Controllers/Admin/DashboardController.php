@@ -27,7 +27,8 @@ class DashboardController extends Controller
         // ===== LOAD STATISTICS =====
         $totalDestinations = Destination::count();
         $totalReservations = Reservation::count();
-        $totalRevenue = Reservation::sum('total_price');
+        // Total Revenue hanya dari CONFIRMED reservations saja
+        $totalRevenue = Reservation::where('status', 'confirmed')->sum('total_price');
         $pendingReservations = Reservation::where('status', 'pending')->count();
 
         // ===== LOAD CHART DATA =====
@@ -116,6 +117,7 @@ class DashboardController extends Controller
     {
         return DB::table('reservations')
             ->selectRaw('DATE_FORMAT(reservation_date, "%Y-%m") as month, SUM(total_price) as revenue, COUNT(*) as count')
+            ->where('status', 'confirmed')
             ->where('reservation_date', '>=', now()->subMonths(3))
             ->groupBy(DB::raw('DATE_FORMAT(reservation_date, "%Y-%m")'))
             ->orderBy('month')

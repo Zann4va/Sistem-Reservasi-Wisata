@@ -17,61 +17,27 @@
             <i class="bi bi-person-circle"></i> Data Customer
         </h5>
 
-        <!-- Customer Name & Email -->
-        <div class="row">
-            <!-- Name Field -->
-            <div class="col-md-6">
-                <div class="form-group mb-3">
-                    <label for="customer_name">
-                        Nama Customer <span class="text-danger">*</span>
-                    </label>
-                    <input 
-                        type="text" 
-                        class="form-control @error('customer_name') is-invalid @enderror" 
-                        id="customer_name" 
-                        name="customer_name" 
-                        value="{{ old('customer_name') }}" 
-                        required>
-                    @error('customer_name')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
-
-            <!-- Email Field -->
-            <div class="col-md-6">
-                <div class="form-group mb-3">
-                    <label for="customer_email">
-                        Email <span class="text-danger">*</span>
-                    </label>
-                    <input 
-                        type="email" 
-                        class="form-control @error('customer_email') is-invalid @enderror" 
-                        id="customer_email" 
-                        name="customer_email" 
-                        value="{{ old('customer_email') }}" 
-                        required>
-                    @error('customer_email')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
-        </div>
-
-        <!-- Phone Field -->
+        <!-- Customer Selection -->
         <div class="form-group mb-4">
-            <label for="customer_phone">
-                Nomor Telepon <span class="text-danger">*</span>
+            <label for="customer_id">
+                Pilih Customer <span class="text-danger">*</span>
             </label>
-            <input 
-                type="tel" 
-                class="form-control @error('customer_phone') is-invalid @enderror" 
-                id="customer_phone" 
-                name="customer_phone" 
-                value="{{ old('customer_phone') }}" 
+            <select 
+                class="form-select @error('customer_id') is-invalid @enderror" 
+                id="customer_id" 
+                name="customer_id" 
                 required>
-            @error('customer_phone')
-                <div class="invalid-feedback">{{ $message }}</div>
+                <option value="">-- Pilih Customer --</option>
+                @foreach($customers as $customer)
+                    <option 
+                        value="{{ $customer->id }}"
+                        @if(old('customer_id') == $customer->id) selected @endif>
+                        {{ $customer->name }} ({{ $customer->email }})
+                    </option>
+                @endforeach
+            </select>
+            @error('customer_id')
+                <div class="invalid-feedback d-block">{{ $message }}</div>
             @enderror
         </div>
 

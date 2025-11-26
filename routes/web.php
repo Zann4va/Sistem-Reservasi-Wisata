@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DestinationController;
+use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\ReservationController;
 use Illuminate\Support\Facades\Route;
 
@@ -46,6 +47,9 @@ Route::middleware(['auth'])->group(function () {
 
         // Destinations CRUD
         Route::resource('destinations', DestinationController::class);
+
+        // Customers CRUD
+        Route::resource('customers', CustomerController::class);
 
         // Status Management - HARUS SEBELUM resource()
         Route::post('/reservations/{reservation}/change-status', [ReservationController::class, 'changeStatus'])->name('reservations.changeStatus');

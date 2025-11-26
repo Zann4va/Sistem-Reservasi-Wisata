@@ -13,9 +13,8 @@ return new class extends Migration
     {
         Schema::create('reservations', function (Blueprint $table) {
             $table->id();
-            $table->string('customer_name', 100);
-            $table->string('customer_email', 100);
-            $table->string('customer_phone', 20);
+            $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
+            $table->string('customer_name')->comment('Denormalized: nama customer saat reservasi dibuat');
             $table->foreignId('destination_id')->constrained('destinations')->onDelete('cascade');
             $table->date('reservation_date');
             $table->integer('quantity');

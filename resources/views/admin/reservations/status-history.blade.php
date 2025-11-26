@@ -36,14 +36,14 @@
                 </p>
                 <p class="mb-0">
                     <strong>Status Saat Ini:</strong>
-                    <x-status-badge :status="$reservation->status" />
+                    <x-status_badge :status="$reservation->status" />
                 </p>
             </div>
         </div>
     </div>
 
     <!-- ===== STATUS HISTORY TIMELINE COMPONENT ===== -->
-    <x-status-history-timeline :histories="$histories" />
+    <x-status_history_timeline :histories="$histories" />
 
 </div>
 

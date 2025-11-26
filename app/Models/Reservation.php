@@ -10,9 +10,7 @@ class Reservation extends Model
     use HasFactory;
 
     protected $fillable = [
-        'customer_name',
-        'customer_email',
-        'customer_phone',
+        'customer_id',
         'destination_id',
         'reservation_date',
         'quantity',
@@ -29,6 +27,14 @@ class Reservation extends Model
     public function destination()
     {
         return $this->belongsTo(Destination::class);
+    }
+
+    /**
+     * Relationship with Customer
+     */
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
     }
 
     /**
