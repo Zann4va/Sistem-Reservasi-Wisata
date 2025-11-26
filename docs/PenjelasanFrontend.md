@@ -743,73 +743,596 @@ public function statusHistory(Reservation $reservation)
 
 ## ⚙️ Request Handling & Validation
 
-### 🔐 Input Validation Pattern
+### 🔐 Two-Layer Validation Architecture
 
-**Reservation Store/Update Example:**
+Sistem menggunakan **Frontend + Backend Validation** untuk keamanan dan UX optimal:
 
-```php
-public function store(Request $request)
-{
-    // VALIDATION RULES
-    $validated = $request->validate([
-        'customer_name' => 'required|string|max:100',
-        'customer_email' => 'required|email|max:100',
-        'customer_phone' => 'required|string|max:20',
-        'destination_id' => 'required|exists:destinations,id',
-        'reservation_date' => 'required|date',
-        'quantity' => 'required|integer|min:1',
-        'total_price' => 'required|numeric|min:0',
-        'status' => 'required|in:pending,confirmed,cancelled',
-        'notes' => 'nullable|string',
-    ]);
+```
+┌─────────────────────────────────────┐
+│  LAYER 1: FRONTEND (HTML5)         │
+│  ─────────────────────────────     │
+│  • Pattern attributes (regex)      │
+│  • Type attributes (tel, email)    │
+│  • Min/max/minlength/maxlength     │
+│  • Required attributes             │
+│  • Title & helper text              │
+│  ✅ Instant feedback (no delay)     │
+│  ⚠️  Can be bypassed by user        │
+└─────────────────────────────────────┘
+           ↓ (user bypasses)
+┌─────────────────────────────────────┐
+│  LAYER 2: BACKEND (Laravel)        │
+│  ─────────────────────────────     │
+│  • Regex validation rules           │
+│  • Unique constraint checks         │
+│  • Range validation (min/max)       │
+│  • Format validation (email, url)   │
+│  • Exists constraint (FK)           │
+│  • Custom error messages            │
+│  ✅ ALWAYS enforced (security)      │
+│  🔒 Cannot be bypassed              │
+└─────────────────────────────────────┘
+```
 
-    // CREATE OR UPDATE
-    $reservation = Reservation::create($validated);
+### 📝 Frontend Validation Implementation
 
-    // LOG AUDIT TRAIL
-    StatusHistory::create([
-        'reservation_id' => $reservation->id,
-        'old_status' => null,
-        'new_status' => $validated['status'],
-        'changed_by' => Auth::user()->email,
-        'notes' => 'Reservasi dibuat',
-    ]);
+#### **1. CUSTOMERS Forms (create.blade.php & edit.blade.php)**
 
-    // REDIRECT WITH MESSAGE
-    return redirect()->route('admin.reservations.index')
-        ->with('success', 'Reservasi berhasil ditambahkan!');
+**Name Field:**
+```blade
+<div class="form-group mb-3">
+    <label for="name" class="form-label">
+        <i class="bi bi-person"></i> Nama
+        <span class="text-danger">*</span>
+    </label>
+    <input 
+        type="text" 
+        class="form-control @error('name') is-invalid @enderror" 
+        id="name" 
+        name="name" 
+        placeholder="Masukkan nama lengkap"
+        value="{{ old('name') }}"
+        pattern="^[a-zA-Z\s]{3,100}$"
+        minlength="3"
+        maxlength="100"
+        title="Nama hanya boleh mengandung huruf dan spasi (3-100 karakter)"
+        required>
+    @error('name')
+        <div class="invalid-feedback d-block">{{ $message }}</div>
+    @enderror
+</div>
+```
+
+**Validation Attributes:**
+- `pattern="^[a-zA-Z\s]{3,100}$"` → Regex validation (letters & spaces only)
+- `minlength="3"` → Minimum 3 characters
+- `maxlength="100"` → Maximum 100 characters
+- `title="..."` → Browser tooltip on validation fail
+- `required` → Field must not be empty
+
+---
+
+**Email Field:**
+```blade
+<div class="mb-3">
+    <label for="email" class="form-label">
+        <i class="bi bi-envelope"></i> Email
+        <span class="text-danger">*</span>
+    </label>
+    <input 
+        type="email" 
+        class="form-control @error('email') is-invalid @enderror" 
+        id="email" 
+        name="email" 
+        placeholder="contoh@email.com"
+        value="{{ old('email') }}"
+        title="Email harus format yang benar dan menggunakan huruf kecil"
+        required>
+    <small class="form-text text-muted">
+        💡 Email akan otomatis diubah menjadi huruf kecil
+    </small>
+    @error('email')
+        <div class="invalid-feedback d-block">{{ $message }}</div>
+    @enderror
+</div>
+```
+
+**Validation Attributes:**
+- `type="email"` → HTML5 email validation
+- Helper text mengingatkan user tentang lowercase enforcement
+- Browser automatically validates email format
+
+---
+
+**Phone Field:**
+```blade
+<div class="mb-3">
+    <label for="phone" class="form-label">
+        <i class="bi bi-telephone"></i> Telepon
+        <span class="text-danger">*</span>
+    </label>
+    <input 
+        type="tel" 
+        class="form-control @error('phone') is-invalid @enderror" 
+        id="phone" 
+        name="phone" 
+        placeholder="Contoh: 081234567890"
+        value="{{ old('phone') }}"
+        pattern="^[0-9]{10,15}$"
+        title="Nomor telepon harus terdiri dari 10-15 angka tanpa simbol"
+        required>
+    <small class="form-text text-muted">
+        Format: 10-15 digit angka (contoh: 081234567890)
+    </small>
+    @error('phone')
+        <div class="invalid-feedback d-block">{{ $message }}</div>
+    @enderror
+</div>
+```
+
+**Validation Attributes:**
+- `type="tel"` → Phone number input type
+- `pattern="^[0-9]{10,15}$"` → 10-15 digits only, no special chars
+- Helper text showing example format
+
+---
+
+**City & Province Fields:**
+```blade
+<div class="mb-3">
+    <label for="city">Kota</label>
+    <input 
+        type="text" 
+        class="form-control @error('city') is-invalid @enderror" 
+        id="city" 
+        name="city" 
+        placeholder="Masukkan kota"
+        value="{{ old('city') }}"
+        pattern="^[a-zA-Z\s]*$"
+        maxlength="100"
+        title="Kota hanya boleh mengandung huruf dan spasi">
+    @error('city')
+        <div class="invalid-feedback d-block">{{ $message }}</div>
+    @enderror
+</div>
+```
+
+**Validation Attributes:**
+- `pattern="^[a-zA-Z\s]*$"` → Letters and spaces only
+- `maxlength="100"` → Maximum 100 characters
+
+---
+
+**Postal Code Field:**
+```blade
+<div class="mb-3">
+    <label for="postal_code">Kode Pos</label>
+    <input 
+        type="text" 
+        class="form-control @error('postal_code') is-invalid @enderror" 
+        id="postal_code" 
+        name="postal_code" 
+        placeholder="Contoh: 12345"
+        value="{{ old('postal_code') }}"
+        pattern="^[0-9]{4,6}$"
+        title="Kode pos harus terdiri dari 4-6 angka">
+    <small class="form-text text-muted">
+        Format: 4-6 digit angka
+    </small>
+    @error('postal_code')
+        <div class="invalid-feedback d-block">{{ $message }}</div>
+    @enderror
+</div>
+```
+
+---
+
+#### **2. DESTINATIONS Forms (create.blade.php & edit.blade.php)**
+
+**Name & Location Fields:**
+```blade
+<!-- Name -->
+<div class="col-md-6">
+    <div class="form-group mb-3">
+        <label for="name">
+            Nama Destinasi <span class="text-danger">*</span>
+        </label>
+        <input 
+            type="text" 
+            class="form-control @error('name') is-invalid @enderror" 
+            id="name" 
+            name="name" 
+            value="{{ old('name') }}"
+            minlength="5"
+            maxlength="100"
+            title="Nama destinasi harus terdiri dari 5-100 karakter"
+            required>
+        <small class="form-text text-muted">
+            Min. 5 karakter, max. 100 karakter
+        </small>
+        @error('name')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+</div>
+
+<!-- Location -->
+<div class="col-md-6">
+    <div class="form-group mb-3">
+        <label for="location">
+            Lokasi <span class="text-danger">*</span>
+        </label>
+        <input 
+            type="text" 
+            class="form-control @error('location') is-invalid @enderror" 
+            id="location" 
+            name="location" 
+            value="{{ old('location') }}"
+            minlength="5"
+            maxlength="100"
+            title="Lokasi harus terdiri dari 5-100 karakter"
+            required>
+        <small class="form-text text-muted">
+            Min. 5 karakter, max. 100 karakter
+        </small>
+        @error('location')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+</div>
+```
+
+---
+
+**Price & Rating Fields:**
+```blade
+<!-- Price -->
+<div class="col-md-6">
+    <div class="form-group mb-3">
+        <label for="price">
+            Harga (Rp) <span class="text-danger">*</span>
+        </label>
+        <input 
+            type="number" 
+            class="form-control @error('price') is-invalid @enderror" 
+            id="price" 
+            name="price" 
+            value="{{ old('price') }}"
+            min="10000"
+            max="999999999"
+            step="1"
+            title="Harga harus antara Rp 10.000 dan Rp 999.999.999"
+            required>
+        <small class="form-text text-muted">
+            Range: Rp 10.000 - Rp 999.999.999
+        </small>
+        @error('price')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+</div>
+
+<!-- Rating -->
+<div class="col-md-6">
+    <div class="form-group mb-3">
+        <label for="rating">
+            Rating (0-5)
+        </label>
+        <input 
+            type="number" 
+            class="form-control @error('rating') is-invalid @enderror" 
+            id="rating" 
+            name="rating" 
+            value="{{ old('rating') }}"
+            min="0"
+            max="5"
+            step="0.1">
+        <small class="form-text text-muted">
+            0.0 - 5.0 bintang
+        </small>
+        @error('rating')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+</div>
+```
+
+---
+
+**Description & Image URL:**
+```blade
+<!-- Description -->
+<div class="form-group mb-3">
+    <label for="description">
+        Deskripsi <span class="text-danger">*</span>
+        <small class="text-muted">(min 10, max 2000 karakter)</small>
+    </label>
+    <textarea 
+        class="form-control @error('description') is-invalid @enderror" 
+        id="description" 
+        name="description" 
+        rows="5"
+        minlength="10"
+        maxlength="2000"
+        title="Deskripsi harus terdiri dari 10-2000 karakter"
+        required>{{ old('description') }}</textarea>
+    <small class="form-text text-muted">
+        Minimal 10 karakter, maksimal 2000 karakter
+    </small>
+    @error('description')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
+</div>
+
+<!-- Image URL -->
+<div class="form-group mb-3">
+    <label for="image_url">
+        URL Gambar
+    </label>
+    <input 
+        type="url" 
+        class="form-control @error('image_url') is-invalid @enderror" 
+        id="image_url" 
+        name="image_url" 
+        value="{{ old('image_url') }}"
+        maxlength="500"
+        placeholder="https://example.com/image.jpg"
+        title="Masukkan URL gambar yang valid (max 500 karakter)">
+    <small class="form-text text-muted">
+        Format: https://... (max 500 karakter)
+    </small>
+    @error('image_url')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
+</div>
+```
+
+---
+
+#### **3. RESERVATIONS Forms (create.blade.php & edit.blade.php)**
+
+**Reservation Date Field:**
+```blade
+<div class="col-md-6">
+    <div class="form-group mb-3">
+        <label for="reservation_date">
+            Tanggal Reservasi <span class="text-danger">*</span>
+        </label>
+        <input 
+            type="date" 
+            class="form-control @error('reservation_date') is-invalid @enderror" 
+            id="reservation_date" 
+            name="reservation_date" 
+            value="{{ old('reservation_date') }}"
+            min="{{ date('Y-m-d', strtotime('+1 day')) }}"
+            max="{{ date('Y-m-d', strtotime('+1 year')) }}"
+            title="Tanggal harus minimal 1 hari ke depan dan maksimal 1 tahun"
+            required>
+        <small class="form-text text-muted">
+            Min. 1 hari ke depan, max. 1 tahun ke depan
+        </small>
+        @error('reservation_date')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+</div>
+```
+
+**Validation Attributes:**
+- `type="date"` → HTML5 date picker
+- `min="{{ date('Y-m-d', strtotime('+1 day')) }}"` → Prevents past dates (dynamic)
+- `max="{{ date('Y-m-d', strtotime('+1 year')) }}"` → Maximum 1 year ahead
+- Browser prevents selection outside these dates in date picker
+
+---
+
+**Quantity & Total Price:**
+```blade
+<div class="col-md-6">
+    <div class="form-group mb-3">
+        <label for="quantity">
+            Jumlah Orang <span class="text-danger">*</span>
+        </label>
+        <input 
+            type="number" 
+            class="form-control @error('quantity') is-invalid @enderror" 
+            id="quantity" 
+            name="quantity" 
+            value="{{ old('quantity') }}"
+            min="1"
+            max="100"
+            title="Jumlah orang harus antara 1-100 orang"
+            required 
+            onchange="updatePrice()">
+        <small class="form-text text-muted">
+            Min. 1 orang, max. 100 orang
+        </small>
+        @error('quantity')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+</div>
+
+<div class="col-md-6">
+    <div class="form-group mb-3">
+        <label for="total_price">
+            Total Harga (Rp) <span class="text-danger">*</span>
+        </label>
+        <input 
+            type="number" 
+            class="form-control @error('total_price') is-invalid @enderror" 
+            id="total_price" 
+            name="total_price" 
+            value="{{ old('total_price') }}"
+            min="50000"
+            step="1"
+            title="Total harga akan otomatis dihitung"
+            required 
+            readonly>
+        <small class="form-text text-muted">
+            💡 Dihitung otomatis: harga destinasi × jumlah orang
+        </small>
+        @error('total_price')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+</div>
+```
+
+**Special Features:**
+- `readonly` pada total_price → User tidak bisa manual edit
+- `onchange="updatePrice()"` pada quantity → Trigger calculation
+- Dynamic calculation via JavaScript
+
+---
+
+**JavaScript untuk Auto-Calculation:**
+```javascript
+function updatePrice() {
+    // Get destination select element
+    const destinationSelect = document.getElementById('destination_id');
+    const selectedOption = destinationSelect.options[destinationSelect.selectedIndex];
+    
+    // Get price from data attribute
+    const price = parseFloat(selectedOption.dataset.price) || 0;
+    
+    // Get quantity from input
+    const quantity = parseInt(document.getElementById('quantity').value) || 1;
+    
+    // Calculate total
+    const totalPrice = price * quantity;
+    
+    // Set total price (formatted)
+    document.getElementById('total_price').value = totalPrice.toFixed(2);
 }
 ```
 
-### 🎯 Validation Error Display
+**How it works:**
+1. Destination select memiliki `data-price` attribute dengan harga
+2. User input quantity atau ubah destination
+3. `onchange` event trigger `updatePrice()` function
+4. Fungsi kalkulasi: `price × quantity`
+5. Result di-set ke readonly field `total_price`
 
-**In Layout:**
+---
+
+### 🔄 Validation Error Display
+
+**In Master Layout** (`resources/views/layouts/admin.blade.php`):
 
 ```blade
+<!-- DISPLAY ALL VALIDATION ERRORS -->
 @if ($errors->any())
-    <div class="alert alert-danger">
-        <strong>Ada kesalahan!</strong>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong><i class="bi bi-exclamation-circle"></i> Validasi Gagal!</strong>
         <ul class="mb-0 mt-2">
             @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
             @endforeach
         </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
+<!-- DISPLAY SUCCESS MESSAGE -->
+@if (session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle"></i> {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
+<!-- DISPLAY ERROR MESSAGE -->
+@if (session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle"></i> {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 @endif
 ```
 
-**In Form Fields:**
+**Features:**
+- Auto-display dari `$errors` variable (set by validation)
+- Dismissible dengan X button
+- Icons untuk visual feedback
+- Bootstrap alert classes
+
+---
+
+**In Individual Form Fields:**
 
 ```blade
 <div class="form-group">
-    <label>Email</label>
-    <input type="email" name="customer_email" 
-           class="form-control @error('customer_email') is-invalid @enderror"
-           value="{{ old('customer_email') }}">
-    @error('customer_email')
-        <div class="invalid-feedback">{{ $message }}</div>
+    <label for="email">Email</label>
+    <input 
+        type="email" 
+        class="form-control @error('email') is-invalid @enderror" 
+        id="email" 
+        name="email"
+        value="{{ old('email') }}">
+    
+    <!-- Display error message jika ada -->
+    @error('email')
+        <div class="invalid-feedback d-block">
+            {{ $message }}
+        </div>
     @enderror
 </div>
+```
+
+**How Bootstrap Validation Works:**
+1. `@error('email')` check apakah ada error untuk field 'email'
+2. If ada → tambah class `is-invalid` ke input
+3. `is-invalid` class trigger red border + error text
+4. Error message ditampilkan di `.invalid-feedback` div
+5. `d-block` membuat div display sebagai block (visible)
+
+---
+
+### 💾 Backend Validation Integration
+
+**Controller menerima validated data:**
+
+```php
+public function store(Request $request)
+{
+    // VALIDATION HAPPENS HERE
+    // Jika gagal → automatic redirect back dengan $errors
+    $validated = $request->validate([
+        'name' => 'required|string|min:3|max:100|regex:/^[a-zA-Z\s]+$/',
+        'email' => 'required|email|unique:customers,email|lowercase',
+        'phone' => 'required|regex:/^[0-9]{10,15}$/|unique:customers,phone',
+    ], [
+        'name.required' => 'Nama wajib diisi',
+        'name.regex' => 'Nama hanya boleh mengandung huruf dan spasi',
+        'email.unique' => 'Email sudah terdaftar',
+        'phone.regex' => 'Nomor telepon harus 10-15 angka',
+    ]);
+
+    // If validation passes, $validated contains clean data
+    // Special handling: email ke lowercase
+    $validated['email'] = strtolower($validated['email']);
+    
+    // Create model
+    Customer::create($validated);
+    
+    // Redirect dengan success message
+    return redirect()->route('...index')->with('success', 'Data berhasil ditambah!');
+}
+```
+
+**Validation Flow:**
+```
+User submit form
+    ↓
+$request->validate() 
+    ├─ Check each rule
+    ├─ If fail → throw ValidationException
+    │   └─ Automatic redirect back dengan $errors
+    │   └─ old() helper restore input values
+    │
+    └─ If pass → return $validated array
+        └─ Continue dengan business logic
 ```
 
 ---
