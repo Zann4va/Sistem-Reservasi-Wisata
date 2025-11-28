@@ -450,7 +450,7 @@
                         </div>
                         <h3>Performa Cepat</h3>
                         <p>Sistem yang responsif dan loading time cepat. Bekerja tanpa hambatan dengan performa optimal.</p>
-                        <img src="https://images.unsplash.com/photo-1460925895917-adf4198c838f?w=500&h=300&fit=crop" alt="Performa" style="width: 100%; border-radius: 10px; margin-top: 15px; object-fit: cover; height: 200px;">
+                        <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1172&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Performa" style="width: 100%; border-radius: 10px; margin-top: 15px; object-fit: cover; height: 200px;">
                     </div>
                 </div>
             </div>
