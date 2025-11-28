@@ -162,7 +162,10 @@
                 @enderror
             </div>
             
-            <button type="submit">Login</button>
+            <button type ="submit">
+                Login
+                <i class="bi bi-send ms-2"></i>
+            </button>
         </form>
         
         <div class="links">

@@ -37,5 +37,14 @@ class UserSeeder extends Seeder
             'No_Handphone' => '089876543210',              // Phone number (Indonesian format)
             'role' => 'admin',                             // Admin role for authorization
         ]);
+        // ==== ADMIN USER #3 ====
+        // Third admin user for testing multi-user scenarios
+        Users::create([
+            'username' => 'Septian',                       // Username for login
+            'email' => 'septian@wisata.com',               // Email identifier
+            'password' => Hash::make('admin123'),          // Hashed password (Hash::make)
+            'No_Handphone' => '089876543210',              // Phone number (Indonesian format)
+            'role' => 'admin',                             // Admin role for authorization
+        ]);
     }
 }

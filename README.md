@@ -294,7 +294,8 @@ Password : admin123
 Email    : iwan@wisata.com
 Password : admin123
 
-
+Email    : septian@wisata.com
+Password : admin123
 ```
 
 **Access:** Full CRUD untuk destinasi, reservasi, dan dashboard
