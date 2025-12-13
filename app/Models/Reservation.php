@@ -10,14 +10,15 @@ class Reservation extends Model
     use HasFactory;
 
     protected $fillable = [
-        'customer_id',
-        'destination_id',
-        'reservation_date',
-        'quantity',
-        'total_price',
-        'status',
-        'notes',
-    ];
+    'customer_id',
+    'customer_name', // ✅ WAJIB
+    'destination_id',
+    'reservation_date',
+    'quantity',
+    'total_price',
+    'status',
+    'notes',
+];
 
     protected $casts = [
         'reservation_date' => 'date',
